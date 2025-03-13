@@ -31,7 +31,7 @@ run_experiment() {
     echo "Stage 1"
     echo "..."
     r1=$(
-        python train.py \
+        python3 train.py \
             --num_classes $num_classes --ss "$ss" --st $st --ve $visual_encoder --le $language_encoder --tm $tm --num_cycles $nc --num_epoch_per_cycle $nepc \
             --latent_size $ls --i_latent_size $ils --lr $lr --phase train --mode $mode --dataset_path "$tdir" --wdir "$wdir_1" \
             --dis_step $dis_step --batch_size $batch_size --dataset $dataset
@@ -43,7 +43,7 @@ run_experiment() {
     echo "Stage 2"
     echo "..."
     r2=$(
-        python train.py \
+        python3 train.py \
             --num_classes $num_classes --ss "$ss" --st $st --ve $visual_encoder --le $language_encoder --tm $tm --num_cycles $nc --num_epoch_per_cycle $nepc \
             --latent_size $ls --i_latent_size $ils --lr $lr --phase val --mode $mode --dataset_path "$edir" --wdir "$wdir_2" \
             --dis_step $dis_step --batch_size $batch_size --dataset $dataset
@@ -53,7 +53,7 @@ run_experiment() {
     echo "Stage 3"
     echo "..."
     r3=$(
-        python gating_train.py \
+        python3 gating_train.py \
             --num_classes $num_classes --ss "$ss" --st $st --ve $visual_encoder --le $language_encoder --tm $tm --phase val --dataset_path "$edir" \
             --wdir "$wdir_2" --th $th --t $t --dataset $dataset
     )
@@ -63,7 +63,7 @@ run_experiment() {
     echo "Stage 4"
     echo "..."
     r4=$(
-        python gating_eval.py \
+        python3 gating_eval.py \
             --num_classes $num_classes --ss "$ss" --st $st --phase train --dataset_path "$tdir" --wdir "$wdir_1" --ve $visual_encoder --le $language_encoder --tm $tm \
             --thresh "${r3:0-23:4}" --temp "${r3:0-1}" --dataset $dataset
     )

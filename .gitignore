@@ -1,1 +1,6 @@
-./resources
+/resources
+/results
+
+miniconda3.sh
+
+__pycache__
