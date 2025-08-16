@@ -4,8 +4,8 @@ import numpy as np
 
 INPUT_DIR = "Data/json"    # <-- Pfad zu deinem Ordner mit JSON-Dateien
 OUTPUT_DIR = "resources/preprocessed/npy"  # <-- Zielordner für die .npy-Dateien
-TARGET_LEN = 150               # Zielanzahl an Frames
-V = 13                         # Anzahl Gelenke
+TARGET_LEN = 300               # Zielanzahl an Frames
+V = 25                         # Anzahl Gelenke
 C = 3                          # x, y, z
 M = 1                          # Personenanzahl (hier immer 1)
 

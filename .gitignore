@@ -1,6 +1,8 @@
 /Data*
 /resources*
 
+/mmaction2*
+
 miniconda3.sh
 
 __pycache__
