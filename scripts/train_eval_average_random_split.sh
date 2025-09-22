@@ -22,16 +22,21 @@ elif [ "$dataset" = "pku51" ]; then
     num_classes=51 nc=10 nepc=1700
     ss=5
     available_splits=("split1" "split2" "split3")
-elif [ "$dataset" = "tsh31"]; then
-    ls=128 ils=16 lr=3.074099555160793e-05 batch_size=64 dis_step=2
+elif [ "$dataset" = "tsh31" ]; then
+    ls=128 ils=16 lr=3.574099555160793e-05 batch_size=64 dis_step=2
     th=0 t=0
-    num_classes=31 nc=10 nepc=1000
+    num_classes=31 nc=10 nepc=1700
     ss=5
-    available_splits=("split1")
+    available_splits=("split1" "split2" "split3")
 else
     echo "Dataset '$dataset' not supported"
     exit 1
 fi
+
+    # ls=128 ils=16 lr=3.074099555160793e-05 batch_size=64 dis_step=2
+    # th=0 t=0
+    # num_classes=31 nc=10 nepc=1700
+    # ss=5
 
 run_experiment() {
     ss=$1
@@ -53,7 +58,6 @@ run_experiment() {
     )
     za=${r1:0-35:5} c=${r1:0-18:1}
     echo "Best ZSL Acc: $za on cycle $c"
-
     echo "=========="
     echo "Stage 2"
     echo "..."

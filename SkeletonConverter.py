@@ -41,12 +41,28 @@
 # 22 left thumb
 # 23 tip of right hand
 # 24 right thumb
-
+import argparse
+import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
 import json
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='View adaptive')
+    parser.add_argument('--input_dir', type=str, default="./Data/json")
+    parser.add_argument('--output_dir', type=str, default="./Data/processed")
+
+    args = parser.parse_args()
+    return args
+
+args = parse_args()
+njts = 13 # Number of joints in the Smarthome skeleton
+ntunjts = 25 # Number of joints in the NTU skeleton
+input_dir = args.input_dir
+output_dir = args.output_dir
+
 
 shJoints = ['right ankle', 'left ankle', 'right knee', 'left knee',
             'right hip', 'left hip', 'right wrist', 'left wrist',
@@ -80,12 +96,10 @@ ntuConnections = [
     (12, 13), (13, 14), (14, 15),     # Linke Hüfte zu Fuß
     (16, 17), (17, 18), (18, 19)]     # Rechte Hüfte zu Fuß
 
-njts = 13 # Number of joints in the Smarthome skeleton
-ntunjts = 25 # Number of joints in the NTU skeleton
-input_dir = "./Data/json"
-output_dir = "./Data/preprocessed"
 
 def process_all_jsons(input_dir):
+    clear_folder(output_dir)
+
     for filename in os.listdir(input_dir):
         if filename.endswith(".json"):
             json_path = os.path.join(input_dir, filename)
@@ -97,7 +111,7 @@ def process_all_jsons(input_dir):
             #print(f"✔️ {filename} → {os.path.basename(out_path)}")
 
 
-def convert_skeleton(json_path):
+def convert_skeleton(json_path, showPlot=False):
     with open(json_path, 'r') as f:
         data = json.load(f)
 
@@ -116,14 +130,18 @@ def convert_skeleton(json_path):
         formatedJoints = np.stack([Xs, Ys, Zs], axis=1).tolist()
 
         joints_coords = dict(zip(shJoints, formatedJoints))
-
-        #print(joints_coords)
-        plot_skeleton(formatedJoints, connections=shConnections, joint_names=shJoints)
         ntu_skeleton = SmartHomeToNTU(formatedJoints)
         coordniate_List.append(ntu_skeleton)
-        #print(ntu_skeleton)
-        plot_skeleton(ntu_skeleton, connections=ntuConnections, joint_names=ntuJoints)
-    convert_coords_to_stgcn_npy(coordniate_List, f"{json_path.replace('.json', '_ntu.npy').replace('/json', '/preprocessed')}", V=ntunjts, M=1)
+        if (showPlot):
+            print(joints_coords)
+            plot_skeleton(formatedJoints, connections=shConnections, joint_names=shJoints)
+            print(ntu_skeleton)
+            plot_skeleton(ntu_skeleton, connections=ntuConnections, joint_names=ntuJoints)
+
+    if (coordniate_List == []):
+        print(json_path)
+        return
+    convert_coords_to_stgcn_npy(coordniate_List, f"{json_path.replace('.json', '_ntu.npy').replace('/json', '/processed')}", V=ntunjts, M=1)
 
 
 def SmartHomeToNTU(skeleton):
@@ -210,7 +228,32 @@ def convert_coords_to_stgcn_npy(frames_list, output_path, V=25, M=1):
         print(coords)
 
 
+def clear_folder(folder_path):
+    """Delete all contents of a folder if it's not empty."""
+    if not os.path.exists(folder_path):
+        print(f"{folder_path} does not exist.")
+        return
+    
+    if not os.path.isdir(folder_path):
+        print(f"{folder_path} is not a directory.")
+        return
 
+    if not os.listdir(folder_path):
+        print(f"{folder_path} is already empty.")
+        return
+    
+    # Delete all files and subfolders
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.remove(file_path)  # remove file or symlink
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)  # remove directory
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+    
+    print(f"Cleared contents of {folder_path}")
 
 def plot_skeleton(points, connections=None, joint_names=None):
     fig = plt.figure()
@@ -240,5 +283,5 @@ def plot_skeleton(points, connections=None, joint_names=None):
     plt.show()
 
  
-#process_all_jsons(input_dir)
-convert_skeleton("./Data/json/Cook.Cleandishes_p02_r00_v02_c03.json")
+process_all_jsons(input_dir)
+#convert_skeleton("./Data/json/Cook.Cleandishes_p02_r00_v02_c03.json", true)
